@@ -395,7 +395,6 @@ void initialize()
             {
                 if (p < N)
                 {
-
                     r[p][0] = (i + 0.5) * pos;
                     r[p][1] = (j + 0.5) * pos;
                     r[p][2] = (k + 0.5) * pos;
@@ -489,12 +488,11 @@ __global__ void computeAccelerationsKernel(double* a, double* r, double* dPot)
 
     double rij[3]; // position of i relative to j
     double rSqd = 0.;
-    double f, rSqd7, rSqd4;
+    //double f, rSqd7, rSqd4;
+    double f,r1,r3,r6;  // vars for potential
     double quot, term, termSquared;
 
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-
-    double localPot = 0.0;
 
     for (j = i + 1; j < 5000; j++ ) {
 
@@ -512,13 +510,21 @@ __global__ void computeAccelerationsKernel(double* a, double* r, double* dPot)
         quot = 1 / rSqd;
         term = quot*quot*quot;
         termSquared = term * term;
-        localPot += 4 * (termSquared - term);
+        atomicAddDouble(dPot, 8 * (termSquared - term));
+        //*dPot += 8 * (termSquared - term);
 
         // Calculate the forces between atoms using the Lennard-Jones potential
-        rSqd7 = 1. / (rSqd * rSqd * rSqd * rSqd * rSqd * rSqd * rSqd);
-        rSqd4 = 1. / (rSqd * rSqd * rSqd * rSqd);
-        f = 24 * (2 * rSqd7 - rSqd4);
+        // rSqd7 = 1. / (rSqd * rSqd * rSqd * rSqd * rSqd * rSqd * rSqd);
+        // rSqd4 = 1. / (rSqd * rSqd * rSqd * rSqd);
+        // f = 24 * (2 * rSqd7 - rSqd4);
         
+        r1 = rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2];
+        r3 = r1 * r1 * r1;
+        r6 = r3 * r3;
+        //*dPot += 8 * ((1 - r3) / r6);
+        f = ((48 - 24*r3)/(r6*r1));
+
+
         // Update the acceleration of atoms i and j based on the calculated forces
         // using F = ma, where m = 1 in natural units
         atomicAddDouble(&a[i * 3], rij[0] * f);
@@ -529,7 +535,6 @@ __global__ void computeAccelerationsKernel(double* a, double* r, double* dPot)
         atomicAddDouble(&a[j * 3 + 2], -rij[2] * f);
     }
 
-    atomicAddDouble(dPot, localPot);
 }
 
 // Computes the accelerations of particles using CUDA.
@@ -545,8 +550,8 @@ void computeAccelerations()
     cudaMalloc((void**)&dPot, sizeof(double));  // Allocate memory for a single double
     checkCUDAError("mem allocation");
 
-    cudaMemset(da, 0, sizeof(double) * N * 3);
     cudaMemcpy(dr, r, sizeof(double) * N * 3, cudaMemcpyHostToDevice);
+    cudaMemset(da, 0, sizeof(double) * N * 3);
     cudaMemset(dPot, 0, sizeof(double));  // Use sizeof(double) for a single double
     checkCUDAError("set memory");
 

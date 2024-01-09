@@ -1,0 +1,7 @@
+==14836== NVPROF is profiling process 14836, command: ./bin/MD
+==14836== Error: Cannot create profiling file: /tmp/.nvprof/nvprof-tmp-14836-compute-134-101.local
+==14836== Profiling application: ./bin/MD
+
+real	0m1.893s
+user	0m0.013s
+sys	0m0.558s

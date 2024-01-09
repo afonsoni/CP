@@ -482,59 +482,57 @@ __device__ double atomicAddDouble(double* address, double val) {
 //   Uses the derivative of the Lennard-Jones potential to calculate
 //   the forces on each atom.  Then uses a = F/m to calculate the
 //   accelleration of each atom.
-__global__ void computeAccelerationsKernel(double* a, double* r, double* dPot)
+__global__ void computeAccelerationsKernel(double* da, double* dr, double* dPot)
 {   
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j;
+    //int j = blockIdx.x * blockDim.x + threadIdx.x;
 
     double rij[3]; // position of i relative to j
-    double rSqd = 0.;
-    //double f, rSqd7, rSqd4;
-    double f,r1,r3,r6;  // vars for potential
+    double f, rSqd, rSqd7, rSqd4;
+    //double f,r1,r3,r6;  // vars for potential
     double quot, term, termSquared;
 
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < 5000 - 1 ){
 
-    for (j = i + 1; j < 5000; j++ ) {
+        for (j = 0; j < 5000; j++ ) {
 
-
+        rSqd = 0.;
         // Calculate the position of atom i relative to atom j
-        rij[0] = r[i * 3] - r[j * 3];
-        rij[1] = r[i * 3 + 1] - r[j * 3 + 1];
-        rij[2] = r[i * 3 + 2] - r[j * 3 + 2];
+        rij[0] = dr[i * 3] - dr[j * 3];
+        rij[1] = dr[i * 3 + 1] - dr[j * 3 + 1];
+        rij[2] = dr[i * 3 + 2] - dr[j * 3 + 2];
         // Calculate the sum of squares of the components
-        rSqd += rij[0] * rij[0];
-        rSqd += rij[1] * rij[1];
-        rSqd += rij[2] * rij[2];
+        rSqd = rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2];
+
+        // rSqd += rij[0] * rij[0];
+        // rSqd += rij[1] * rij[1];
+        // rSqd += rij[2] * rij[2];
 
         // Calculate the Lennard-Jones potential energy
         quot = 1 / rSqd;
         term = quot*quot*quot;
         termSquared = term * term;
-        atomicAddDouble(dPot, 8 * (termSquared - term));
-        //*dPot += 8 * (termSquared - term);
+
+        *dPot += 8 * 1. * (termSquared - term);
 
         // Calculate the forces between atoms using the Lennard-Jones potential
-        // rSqd7 = 1. / (rSqd * rSqd * rSqd * rSqd * rSqd * rSqd * rSqd);
-        // rSqd4 = 1. / (rSqd * rSqd * rSqd * rSqd);
-        // f = 24 * (2 * rSqd7 - rSqd4);
+        rSqd7 = 1. / (rSqd * rSqd * rSqd * rSqd * rSqd * rSqd * rSqd);
+        rSqd4 = 1. / (rSqd * rSqd * rSqd * rSqd);
         
-        r1 = rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2];
-        r3 = r1 * r1 * r1;
-        r6 = r3 * r3;
-        //*dPot += 8 * ((1 - r3) / r6);
-        f = ((48 - 24*r3)/(r6*r1));
-
+        f = (48 * rSqd7) - (24 * rSqd4);
 
         // Update the acceleration of atoms i and j based on the calculated forces
         // using F = ma, where m = 1 in natural units
-        atomicAddDouble(&a[i * 3], rij[0] * f);
-        atomicAddDouble(&a[j * 3], -rij[0] * f);
-        atomicAddDouble(&a[i * 3 + 1], rij[1] * f);
-        atomicAddDouble(&a[j * 3 + 1], -rij[1] * f);
-        atomicAddDouble(&a[i * 3 + 2], rij[2] * f);
-        atomicAddDouble(&a[j * 3 + 2], -rij[2] * f);
+        atomicAddDouble(&da[i * 3], rij[0] * f);
+        atomicAddDouble(&da[j * 3], -rij[0] * f);
+        atomicAddDouble(&da[i * 3 + 1], rij[1] * f);
+        atomicAddDouble(&da[j * 3 + 1], -rij[1] * f);
+        atomicAddDouble(&da[i * 3 + 2], rij[2] * f);
+        atomicAddDouble(&da[j * 3 + 2], -rij[2] * f);
     }
-
+    }
+    
 }
 
 // Computes the accelerations of particles using CUDA.
@@ -559,7 +557,7 @@ void computeAccelerations()
 
     cudaMemcpy(a, da, sizeof(double) * N * 3, cudaMemcpyDeviceToHost);
 
-    cudaMemcpy(&Pot, dPot, sizeof(double), cudaMemcpyDeviceToHost);
+    cudaMemcpy(Pot, dPot, sizeof(double), cudaMemcpyDeviceToHost);
     checkCUDAError("memcopy");
 
     // Free device memory

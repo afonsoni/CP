@@ -1,4 +1,5 @@
-==44538== NVPROF is profiling process 44538, command: ./bin/MD
+==30759== NVPROF is profiling process 30759, command: ./bin/MD
+==30759== Warning: Profiling results might be incorrect with current version of nvcc compiler used to compile cuda app. Compile with nvcc compiler 9.0 or later version to get correct profiling results. Ignore this warning if code is already compiled with the recommended nvcc version 
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                   WELCOME TO WILLY P CHEM MD!
@@ -40,7 +41,7 @@
   NUMBER DENSITY OF LIQUID ARGON AT 1 ATM AND 87 K IS ABOUT 35000 moles/m^3
   PERCENTAGE OF CALCULATION COMPLETE:
   [ 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100 ]
-==44538== Profiling application: ./bin/MD
+==30759== Profiling application: ./bin/MD
 
   TO ANIMATE YOUR SIMULATION, OPEN THE FILE 
   'cp_traj.xyz' WITH VMD AFTER THE SIMULATION COMPLETES
@@ -64,26 +65,26 @@
   TOTAL VOLUME (m^3):                      2.37220e-25 
 
   NUMBER OF PARTICLES (unitless):          5000 
-==44538== Profiling result:
+==30759== Profiling result:
             Type  Time(%)      Time     Calls       Avg       Min       Max  Name
- GPU activities:   99.92%  11.6639s       202  57.742ms  57.666ms  57.812ms  computeAccelerationsKernel(double*, double*, double*)
-                    0.04%  4.4817ms       202  22.186us  21.856us  32.736us  [CUDA memcpy HtoD]
-                    0.03%  4.0709ms       404  10.076us  1.5360us  19.136us  [CUDA memcpy DtoH]
-                    0.01%  1.2779ms       404  3.1630us  1.7600us  5.1200us  [CUDA memset]
-      API calls:   97.40%  11.6937s       606  19.297ms  16.317us  57.951ms  cudaMemcpy
-                    2.29%  274.54ms       606  453.04us  2.9650us  239.56ms  cudaMalloc
-                    0.24%  28.425ms       606  46.905us  2.7710us  2.0485ms  cudaFree
-                    0.04%  4.2439ms       404  10.504us  3.9290us  75.335us  cudaMemset
-                    0.02%  2.3620ms       202  11.693us  9.6840us  43.639us  cudaLaunchKernel
-                    0.01%  1.0831ms         2  541.56us  506.92us  576.20us  cuDeviceTotalMem
-                    0.01%  1.0123ms       202  5.0110us     295ns  215.19us  cuDeviceGetAttribute
-                    0.00%  310.48us       808     384ns     214ns  13.554us  cudaGetLastError
-                    0.00%  283.05us         2  141.52us  48.265us  234.78us  cuDeviceGetName
-                    0.00%  19.176us         2  9.5880us  3.7940us  15.382us  cuDeviceGetPCIBusId
-                    0.00%  3.7250us         4     931ns     382ns  1.4500us  cuDeviceGet
-                    0.00%  2.5780us         3     859ns     400ns  1.3900us  cuDeviceGetCount
-                    0.00%  2.1330us         2  1.0660us     730ns  1.4030us  cuDeviceGetUuid
+ GPU activities:   99.88%  8.09868s       202  40.092ms  40.030ms  40.174ms  computeAccelerationsKernel(double*, double*, double*)
+                    0.06%  4.5396ms       202  22.473us  22.080us  33.664us  [CUDA memcpy HtoD]
+                    0.05%  4.1262ms       404  10.213us  1.8230us  28.928us  [CUDA memcpy DtoH]
+                    0.02%  1.4337ms       404  3.5480us  2.1120us  12.897us  [CUDA memset]
+      API calls:   96.39%  8.12925s       606  13.415ms  16.403us  40.328ms  cudaMemcpy
+                    3.16%  266.81ms       606  440.28us  2.9840us  234.71ms  cudaMalloc
+                    0.33%  27.908ms       606  46.053us  2.7780us  213.70us  cudaFree
+                    0.05%  4.2175ms       404  10.439us  4.1060us  61.827us  cudaMemset
+                    0.03%  2.4669ms       202  12.212us  9.9730us  65.919us  cudaLaunchKernel
+                    0.01%  1.0854ms         2  542.70us  507.65us  577.75us  cuDeviceTotalMem
+                    0.01%  978.36us       202  4.8430us     267ns  207.98us  cuDeviceGetAttribute
+                    0.00%  317.82us       808     393ns     194ns  13.872us  cudaGetLastError
+                    0.00%  297.17us         2  148.58us  67.328us  229.84us  cuDeviceGetName
+                    0.00%  18.108us         2  9.0540us  2.6970us  15.411us  cuDeviceGetPCIBusId
+                    0.00%  2.9390us         4     734ns     277ns     982ns  cuDeviceGet
+                    0.00%  1.9180us         3     639ns     279ns  1.0320us  cuDeviceGetCount
+                    0.00%  1.8030us         2     901ns     663ns  1.1400us  cuDeviceGetUuid
 
-real	0m15.681s
-user	0m7.713s
-sys	0m5.583s
+real	0m12.106s
+user	0m5.323s
+sys	0m4.356s

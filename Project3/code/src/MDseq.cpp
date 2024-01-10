@@ -44,6 +44,9 @@ double kBSI = 1.38064852e-23; // m^2*kg/(s^2*K)
 //  Size of box, which will be specified in natural units
 double L;
 
+// global variable Potential
+double Pot;
+
 //  Initial Temperature in Natural Units
 double Tinit; // 2;
 //  Vectors!
@@ -67,6 +70,8 @@ void initialize();
 //  print particle coordinates to file for rendering via VMD or other animation software
 //  return 'instantaneous pressure'
 double VelocityVerlet(double dt, int iter, FILE *fp);
+//  Compute total potential energy from particle coordinates
+//  &&
 //  Compute Force using F = -dV/dr
 //  solve F = ma for use in Velocity Verlet
 void computeAccelerations();
@@ -74,8 +79,6 @@ void computeAccelerations();
 double gaussdist();
 //  Initialize velocities according to user-supplied initial Temperature (Tinit)
 void initializeVelocities();
-//  Compute total potential energy from particle coordinates
-double Potential();
 //  Compute mean squared velocity from particle velocities
 double MeanSquaredVelocity();
 //  Compute total kinetic energy from particle mass and velocities
@@ -87,7 +90,7 @@ int main()
     int i;
     double dt, Vol, Temp, Press, Pavg, Tavg, rho;
     double VolFac, TempFac, PressFac, timefac;
-    double KE, PE, mvs, gc, Z;
+    double KE, mvs, gc, Z;
     char trash[10000], prefix[1000], tfn[1000], ofn[1000], afn[1000];
     FILE *infp, *tfp, *ofp, *afp;
 
@@ -318,7 +321,6 @@ int main()
         //  We would also like to use the IGL to try to see if we can extract the gas constant
         mvs = MeanSquaredVelocity();
         KE = Kinetic();
-        PE = Potential();
 
         // Temperature from Kinetic Theory
         Temp = m * mvs / (3 * kB) * TempFac;
@@ -332,7 +334,7 @@ int main()
         Tavg += Temp;
         Pavg += Press;
 
-        fprintf(ofp, "  %8.4e  %20.8f  %20.8f %20.8f  %20.8f  %20.8f \n", i * dt * timefac, Temp, Press, KE, PE, KE + PE);
+        fprintf(ofp, "  %8.4e  %20.8f  %20.8f %20.8f  %20.8f  %20.8f \n", i * dt * timefac, Temp, Press, KE, Pot, KE + Pot);
     }
 
     // Because we have calculated the instantaneous temperature and pressure,
@@ -459,104 +461,66 @@ double Kinetic()
     return kin;
 }
 
-// Function to calculate the potential energy of the system
-double Potential()
-{
-    double quot,term, term1, term2, Pot, r2, xi, yi, zi, xj, yj, zj, x, y, z;
-    int i, j, k;
 
-    Pot = 0.;
-    for (i = 0; i < N; i++)
-    {
-        xi = r[i][0];
-        yi = r[i][1];
-        zi = r[i][2];
-        for (j = i + 1; j < N; j++)
-        {
-                r2 = 0.;
-
-                xj = r[j][0];
-                yj = r[j][1];
-                zj = r[j][2];
-
-                x = xi - xj;
-                y = yi - yj;
-                z = zi - zj;
-
-                r2 = x * x + y * y + z * z;
-
-                quot = sigma / r2;
-                term = quot*quot*quot;
-                term1 = term * term *1.;
-                term2 = term * 1.;
-
-                Pot += 4 * epsilon * (term1 - term2);
-            
-        }
-    }
-
-    return Pot;
-}
-
-// aquii
+// aqui
 //   Uses the derivative of the Lennard-Jones potential to calculate
 //   the forces on each atom.  Then uses a = F/m to calculate the
 //   accelleration of each atom.
 void computeAccelerations()
 {   
     // int i
-    int i, j, k, xi, yi, zi, xj, yj, zj;
+    int i, j;
+    double quot, term, termSquared;
     double f, rSqd, rSqd7, rSqd4;
-    double rij[3]; // position of i relative to j  
+    double rij[3]; // position of i relative to j
+
+    Pot = 0.;
+
     for (i = 0; i < N; i++) {
         a[i][0] = 0;
         a[i][1] = 0;
         a[i][2] = 0;
     } 
-    for (i = 0; i < N-1; i++) {  // set all accelerations to zero
-    
-        // loop over all distinct pairs i,j
-        xi = r[i][0];
-        yi = r[i][1];
-        zi = r[i][2];
-    {
+
+    for (i = 0; i < N-1; i++) 
+    {  
         for (j = i + 1; j < N; j++)
         {
-            // initialize r^2 to zero
-            rij[3];
-            rSqd = 0;
-
+            rSqd = 0.;
+            // Calculate the position of atom i relative to atom j
             rij[0] = r[i][0] - r[j][0];
-            rSqd += rij[0] * rij[0];
             rij[1] = r[i][1] - r[j][1];
-            rSqd += rij[1] * rij[1];
             rij[2] = r[i][2] - r[j][2];
-            rSqd += rij[2] * rij[2];
-            
+            // Calculate the sum of squares of the components
+            rSqd = rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2];
+
+            // Calculate the Lennard-Jones potential energy
+            quot = 1 / rSqd;
+            term = quot*quot*quot;
+            termSquared = term * term;
+            Pot += 4 * (termSquared - term);
+
+            // Calculate the forces between atoms using the Lennard-Jones potential
             rSqd7 = 1. / (rSqd * rSqd * rSqd * rSqd * rSqd * rSqd * rSqd);
             rSqd4 = 1. / (rSqd * rSqd * rSqd * rSqd);
+            f = (48 * rSqd7) - (24 * rSqd4);
 
-            f = 24 * (2 * rSqd7 - rSqd4);
-
+            // Update the acceleration of atoms i and j based on the calculated forces
+            // using F = ma, where m = 1 in natural units
             a[i][0] += rij[0] * f;
             a[j][0] -= rij[0] * f;
-
             a[i][1] += rij[1] * f;
             a[j][1] -= rij[1] * f;
-            
             a[i][2] += rij[2] * f;
             a[j][2] -= rij[2] * f;
-
-
         }
-    }
     }
 }
 
 // returns sum of dv/dt*m/A (aka Pressure) from elastic collisions with walls
 double VelocityVerlet(double dt, int iter, FILE *fp)
 {
-    int i, j, k;
+    int i, j;
 
     double half_dt = 0.5 * dt;
     double psum = 0.;

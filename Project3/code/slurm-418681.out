@@ -1,0 +1,90 @@
+==25279== NVPROF is profiling process 25279, command: ./bin/MD
+==25279== Warning: Profiling results might be incorrect with current version of nvcc compiler used to compile cuda app. Compile with nvcc compiler 9.0 or later version to get correct profiling results. Ignore this warning if code is already compiled with the recommended nvcc version 
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                  WELCOME TO WILLY P CHEM MD!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  ENTER A TITLE FOR YOUR CALCULATION!
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                  TITLE ENTERED AS 'cp'
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  WHICH NOBLE GAS WOULD YOU LIKE TO SIMULATE? (DEFAULT IS ARGON)
+
+  FOR HELIUM,  TYPE 'He' THEN PRESS 'return' TO CONTINUE
+  FOR NEON,    TYPE 'Ne' THEN PRESS 'return' TO CONTINUE
+  FOR ARGON,   TYPE 'Ar' THEN PRESS 'return' TO CONTINUE
+  FOR KRYPTON, TYPE 'Kr' THEN PRESS 'return' TO CONTINUE
+  FOR XENON,   TYPE 'Xe' THEN PRESS 'return' TO CONTINUE
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                     YOU ARE SIMULATING Ar GAS! 
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  YOU WILL NOW ENTER A FEW SIMULATION PARAMETERS
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+  ENTER THE INTIAL TEMPERATURE OF YOUR GAS IN KELVIN
+
+
+  ENTER THE NUMBER DENSITY IN moles/m^3
+  FOR REFERENCE, NUMBER DENSITY OF AN IDEAL GAS AT STP IS ABOUT 40 moles/m^3
+  NUMBER DENSITY OF LIQUID ARGON AT 1 ATM AND 87 K IS ABOUT 35000 moles/m^3
+  PERCENTAGE OF CALCULATION COMPLETE:
+  [ 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100 ]
+
+  TO ANIMATE YOUR SIMULATION, OPEN THE FILE 
+  'cp_traj.xyz' WITH VMD AFTER THE SIMULATION COMPLETES
+
+  TO ANALYZE INSTANTANEOUS DATA ABOUT YOUR MOLECULE, OPEN THE FILE 
+  'cp_output.txt' WITH YOUR FAVORITE TEXT EDITOR OR IMPORT THE DATA INTO EXCEL
+
+  THE FOLLOWING THERMODYNAMIC AVERAGES WILL BE COMPUTED AND WRITTEN TO THE FILE  
+  'cp_average.txt':
+
+  AVERAGE TEMPERATURE (K):                       131.49196
+
+  AVERAGE PRESSURE  (Pa):                  131003061.48294
+
+  PV/nT (J * mol^-1 K^-1):                        28.46520
+
+  PERCENT ERROR of pV/nT AND GAS CONSTANT:       242.35774
+
+  THE COMPRESSIBILITY (unitless):                  3.42358 
+
+  TOTAL VOLUME (m^3):                      2.37220e-25 
+
+  NUMBER OF PARTICLES (unitless):          5000 
+==25279== Profiling application: ./bin/MD
+==25279== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   99.91%  11.0483s       202  54.694ms  54.628ms  54.755ms  computeAccelerationsKernel(double*, double*, double*)
+                    0.04%  4.5742ms       202  22.644us  22.208us  32.641us  [CUDA memcpy HtoD]
+                    0.04%  4.1232ms       404  10.206us  1.6000us  19.104us  [CUDA memcpy DtoH]
+                    0.01%  1.3316ms       404  3.2950us  1.8880us  4.9920us  [CUDA memset]
+      API calls:   97.19%  11.0823s       606  18.288ms  16.153us  54.886ms  cudaMemcpy
+                    2.47%  281.90ms       606  465.19us  3.0560us  248.14ms  cudaMalloc
+                    0.25%  28.804ms       606  47.531us  2.7990us  423.05us  cudaFree
+                    0.04%  4.6087ms       404  11.407us  4.2240us  62.189us  cudaMemset
+                    0.02%  2.7372ms       202  13.550us  10.441us  66.815us  cudaLaunchKernel
+                    0.01%  1.0708ms         2  535.38us  455.59us  615.18us  cuDeviceTotalMem
+                    0.01%  837.01us       202  4.1430us     310ns  185.51us  cuDeviceGetAttribute
+                    0.00%  331.42us       808     410ns     241ns  14.462us  cudaGetLastError
+                    0.00%  301.21us         2  150.60us  38.207us  263.00us  cuDeviceGetName
+                    0.00%  19.857us         2  9.9280us  5.4950us  14.362us  cuDeviceGetPCIBusId
+                    0.00%  3.4160us         3  1.1380us     638ns  1.7880us  cuDeviceGetCount
+                    0.00%  3.2520us         4     813ns     362ns  1.4500us  cuDeviceGet
+                    0.00%  1.3950us         2     697ns     497ns     898ns  cuDeviceGetUuid
+
+real	0m15.011s
+user	0m7.584s
+sys	0m5.142s

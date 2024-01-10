@@ -2,13 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Data
-sizes = [2500, 5000, 10000, 20000]
-num_threads = [8, 16, 32, 64]
+sizes = [5000, 10000, 15000]
+num_threads = [8, 16, 32]
 
-config_1_times = [5.662, 10.579, 26.779, 101.518]
-config_2_times = [6.152, 8.614, 20.606, 66.406]
-config_3_times = [6.979, 10.387, 18.166, 58.984]
-config_4_times = [7.149, 10.494, 19.629, 55.422]
+config_1_times = [5.662, 10.579, 26.779]
+config_2_times = [6.152, 8.614, 20.606]
+config_3_times = [6.979, 10.387, 18.166]
 
 # Set up positions for bars on X axis
 bar_width = 0.2

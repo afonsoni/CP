@@ -532,11 +532,11 @@ __global__ void computeAccelerationsKernel(double* da, double* dr, double* dPot)
 
         // Update the acceleration of atoms i and j based on the calculated forces
         // using F = ma, where m = 1 in natural units
-        sum_acc0 = rij[0] * f;
+        sum_acc0 += rij[0] * f;
         atomicAddDouble(&da[j * 3], -rij[0] * f);
-        sum_acc1 = rij[1] * f;
+        sum_acc1 += rij[1] * f;
         atomicAddDouble(&da[j * 3 + 1], -rij[1] * f);
-        sum_acc2 = rij[2] * f;
+        sum_acc2 += rij[2] * f;
         atomicAddDouble(&da[j * 3 + 2], -rij[2] * f);
     }
     atomicAddDouble(&da[i * 3], sum_acc0);
@@ -556,6 +556,7 @@ __global__ void computeAccelerationsKernel(double* da, double* dr, double* dPot)
             localPot[threadIdx.x] += localPot[threadIdx.x + stride];
         }
     }
+
     // Store the result in the output array
     if (threadIdx.x == 0) {
         dPot[blockIdx.x] = localPot[0];

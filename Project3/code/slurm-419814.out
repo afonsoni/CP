@@ -1,0 +1,7 @@
+==36260== NVPROF is profiling process 36260, command: ./bin/MD
+==36260== Error: Cannot create profiling file: /tmp/.nvprof/nvprof-tmp-36260-compute-134-101.local
+==36260== Profiling application: ./bin/MD
+
+real	0m1.466s
+user	0m0.008s
+sys	0m0.404s

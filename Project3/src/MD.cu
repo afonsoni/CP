@@ -8,36 +8,36 @@
 #define N 5000
 #define NUM_THREADS_PER_BLOCK 16
 #define NUM_BLOCKS ((N + NUM_THREADS_PER_BLOCK - 1) / NUM_THREADS_PER_BLOCK)
-//#define SIZE NUM_BLOCKS*NUM_THREADS_PER_BLOCK
+// #define SIZE NUM_BLOCKS*NUM_THREADS_PER_BLOCK
 
 using namespace std;
 /*
- MD.c - a simple molecular dynamics program for simulating real gas properties of Lennard-Jones particles.
+MD.c - a simple molecular dynamics program for simulating real gas properties of Lennard-Jones particles.
 
- Copyright (C) 2016  Jonathan J. Foley IV, Chelsea Sweet, Oyewumi Akinfenwa
+Copyright (C) 2016  Jonathan J. Foley IV, Chelsea Sweet, Oyewumi Akinfenwa
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- Electronic Contact:  foleyj10@wpunj.edu
- Mail Contact:   Prof. Jonathan Foley
- Department of Chemistry, William Paterson University
- 300 Pompton Road
- Wayne NJ 07470
+Electronic Contact:  foleyj10@wpunj.edu
+Mail Contact:   Prof. Jonathan Foley
+Department of Chemistry, William Paterson University
+300 Pompton Road
+Wayne NJ 07470
 */
 
 // Number of particles
-//int N = 5000;
+// int N = 5000;
 
 //  Lennard-Jones parameters in natural units!
 double sigma = 1.;
@@ -221,7 +221,7 @@ int main()
 
     scanf("%lf", &rho);
 
-    //N = 10 * 216;
+    // N = 10 * 216;
     Vol = N / (rho * NA);
 
     Vol /= VolFac;
@@ -367,7 +367,7 @@ int main()
     printf("\n  THE COMPRESSIBILITY (unitless):          %15.5f \n", Z);
     printf("\n  TOTAL VOLUME (m^3):                      %10.5e \n", Vol * VolFac);
     printf("\n  NUMBER OF PARTICLES (unitless):          %i \n", N);
-    
+
     fclose(tfp);
     fclose(ofp);
     fclose(afp);
@@ -413,15 +413,15 @@ void initialize()
 
     /***********************************************
      *   Uncomment if you want to see what the initial positions and velocities are
-     printf("  Printing initial positions!\n");
-     for (i=0; i<N; i++) {
-     printf("  %6.3e  %6.3e  %6.3e\n",r[i][0],r[i][1],r[i][2]);
-     }
+    printf("  Printing initial positions!\n");
+    for (i=0; i<N; i++) {
+    printf("  %6.3e  %6.3e  %6.3e\n",r[i][0],r[i][1],r[i][2]);
+    }
 
-     printf("  Printing initial velocities!\n");
-     for (i=0; i<N; i++) {
-     printf("  %6.3e  %6.3e  %6.3e\n",v[i][0],v[i][1],v[i][2]);
-     }
+    printf("  Printing initial velocities!\n");
+    for (i=0; i<N; i++) {
+    printf("  %6.3e  %6.3e  %6.3e\n",v[i][0],v[i][1],v[i][2]);
+    }
      */
 }
 
@@ -471,11 +471,13 @@ double Kinetic()
 }
 
 // Define atomicAdd for double precision using atomicCAS
-__device__ double atomicAddDouble(double* address, double val) {
-    unsigned long long int* address_as_ull = (unsigned long long int*)address;
+__device__ double atomicAddDouble(double *address, double val)
+{
+    unsigned long long int *address_as_ull = (unsigned long long int *)address;
     unsigned long long int old = *address_as_ull, assumed;
 
-    do {
+    do
+    {
         assumed = old;
         old = atomicCAS(address_as_ull, assumed, __double_as_longlong(val + __longlong_as_double(assumed)));
     } while (assumed != old);
@@ -486,8 +488,8 @@ __device__ double atomicAddDouble(double* address, double val) {
 //   Uses the derivative of the Lennard-Jones potential to calculate
 //   the forces on each atom.  Then uses a = F/m to calculate the
 //   accelleration of each atom.
-__global__ void computeAccelerationsKernel(double* da, double* dr, double* dPot)
-{   
+__global__ void computeAccelerationsKernel(double *da, double *dr, double *dPot)
+{
     __shared__ double localPot[NUM_THREADS_PER_BLOCK];
     localPot[threadIdx.x] = 0.;
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -495,15 +497,16 @@ __global__ void computeAccelerationsKernel(double* da, double* dr, double* dPot)
 
     double rij[3]; // position of i relative to j
     double f, rSqd, rSqd7, rSqd4;
-    //double f,r1,r3,r6;  // vars for potential
+    // double f,r1,r3,r6;  // vars for potential
     double quot, term, termSquared;
     double sum_acc0, sum_acc1, sum_acc2;
 
-    sum_acc0=0;
-    sum_acc1=0;
-    sum_acc2=0;
+    sum_acc0 = 0;
+    sum_acc1 = 0;
+    sum_acc2 = 0;
 
-    for (j = i + 1; j < 5000; j++ ) {
+    for (j = i + 1; j < 5000; j++)
+    {
 
         rSqd = 0.;
         // Calculate the position of atom i relative to atom j
@@ -519,15 +522,15 @@ __global__ void computeAccelerationsKernel(double* da, double* dr, double* dPot)
 
         // Calculate the Lennard-Jones potential energy
         quot = 1 / rSqd;
-        term = quot*quot*quot;
+        term = quot * quot * quot;
         termSquared = term * term;
 
-        localPot[threadIdx.x] += (termSquared - term); 
+        localPot[threadIdx.x] += (termSquared - term);
 
         // Calculate the forces between atoms using the Lennard-Jones potential
         rSqd7 = 1. / (rSqd * rSqd * rSqd * rSqd * rSqd * rSqd * rSqd);
         rSqd4 = 1. / (rSqd * rSqd * rSqd * rSqd);
-        
+
         f = (48 * rSqd7) - (24 * rSqd4);
 
         // Update the acceleration of atoms i and j based on the calculated forces
@@ -550,37 +553,38 @@ __global__ void computeAccelerationsKernel(double* da, double* dr, double* dPot)
      * The `stride` is halved in each iteration until it reaches 0.
      * The reduction operation is performed using the __syncthreads() function to synchronize the threads within the block.
      */
-    for (int stride = blockDim.x / 2; stride > 0; stride >>= 1) {
+    for (int stride = blockDim.x / 2; stride > 0; stride >>= 1)
+    {
         __syncthreads();
-        if (threadIdx.x < stride) {
+        if (threadIdx.x < stride)
+        {
             localPot[threadIdx.x] += localPot[threadIdx.x + stride];
         }
     }
 
     // Store the result in the output array
-    if (threadIdx.x == 0) {
+    if (threadIdx.x == 0)
+    {
         dPot[blockIdx.x] = localPot[0];
     }
-
 }
 
 // Computes the accelerations of particles using CUDA.
-
 // This function calculates the accelerations of particles based on their positions and
 // updates the acceleration array on the device.
 void computeAccelerations()
-{   
+{
     double *da, *dr, *dPot;
     int i;
 
-    cudaMalloc((void**)&da, sizeof(double) * N * 3);
-    cudaMalloc((void**)&dr, sizeof(double) * N * 3);
-    cudaMalloc((void**)&dPot, sizeof(double) * NUM_BLOCKS);  // Allocate memory for a single double
+    cudaMalloc((void **)&da, sizeof(double) * N * 3);
+    cudaMalloc((void **)&dr, sizeof(double) * N * 3);
+    cudaMalloc((void **)&dPot, sizeof(double) * NUM_BLOCKS); // Allocate memory for a single double
     checkCUDAError("mem allocation");
 
     cudaMemcpy(dr, r, sizeof(double) * N * 3, cudaMemcpyHostToDevice);
     cudaMemset(da, 0, sizeof(double) * N * 3);
-    cudaMemset(dPot, 0, sizeof(double) * NUM_BLOCKS);  // Use sizeof(double) for a single double
+    cudaMemset(dPot, 0, sizeof(double) * NUM_BLOCKS); // Use sizeof(double) for a single double
     checkCUDAError("set memory");
 
     computeAccelerationsKernel<<<NUM_BLOCKS, NUM_THREADS_PER_BLOCK>>>(da, dr, dPot);
@@ -597,13 +601,13 @@ void computeAccelerations()
 
     Pot = 0.;
 
-    for(i=0; i<NUM_BLOCKS; i++) {
-        Pot+=localPotBlock[i];
+    for (i = 0; i < NUM_BLOCKS; i++)
+    {
+        Pot += localPotBlock[i];
     }
 
-    Pot*=8;
+    Pot *= 8;
 }
-
 
 // returns sum of dv/dt*m/A (aka Pressure) from elastic collisions with walls
 double VelocityVerlet(double dt, int iter, FILE *fp)
